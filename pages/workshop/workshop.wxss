@@ -1,0 +1,53 @@
+.page-wrap { padding: 0 28rpx 40rpx; }
+
+.mode-switch { display: flex; border: 4rpx solid var(--black); border-radius: 36rpx; overflow: hidden; background: var(--white); margin-bottom: 22rpx; box-shadow: 4rpx 4rpx 0 var(--black); }
+.mode-btn { flex: 1; text-align: center; padding: 14rpx 0; font-size: 18rpx; font-weight: 900; color: #888; }
+.mode-btn.active { background: var(--yellow); color: var(--black); }
+
+.ai-prompt-input { width: 100%; height: 76rpx; padding: 0 20rpx; border: 4rpx solid var(--black); border-radius: 20rpx; background: var(--white); font-size: 22rpx; font-weight: 900; margin-bottom: 16rpx; box-shadow: 4rpx 4rpx 0 var(--black); }
+.ai-btn-row { display: flex; gap: 12rpx; margin-bottom: 22rpx; }
+.ai-btn-row button { flex: 1; font-size: 20rpx; padding: 14rpx 0; }
+
+.candidates-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14rpx; margin-bottom: 22rpx; }
+.candi-card { position: relative; height: 300rpx; border: 4rpx solid var(--black); border-radius: 20rpx; background: var(--white); overflow: hidden; box-shadow: 4rpx 4rpx 0 var(--black); }
+.candi-img { width: 100%; height: 100%; }
+.candi-sel { border: 6rpx solid var(--yellow); }
+.candi-badge { position: absolute; bottom: 8rpx; right: 8rpx; width: 40rpx; height: 40rpx; border: 3rpx solid var(--black); border-radius: 50%; background: var(--white); display: flex; align-items: center; justify-content: center; font-size: 22rpx; font-weight: 900; }
+.candi-sel .candi-badge { background: var(--yellow); }
+
+.save-work-btn { width: 100%; }
+.doodle-save-btn { width: 100%; }
+
+.doodle-canvas { width: 100%; height: 400rpx; background: #FFFDF8; border: 4rpx solid var(--black); border-radius: 20rpx; margin-bottom: 16rpx; box-shadow: 4rpx 4rpx 0 var(--black); }
+
+.tool-row { display: flex; align-items: center; gap: 12rpx; margin-bottom: 16rpx; }
+.color-dot, .tool-btn { width: 64rpx; height: 64rpx; border: 4rpx solid var(--black); border-radius: 16rpx; background: var(--white); display: flex; align-items: center; justify-content: center; font-size: 30rpx; }
+.dot-active { box-shadow: 0 0 0 6rpx rgba(255, 209, 56, 0.6); }
+
+.doodle-form { display: flex; gap: 12rpx; margin-bottom: 18rpx; }
+.doodle-name { flex: 1; height: 72rpx; padding: 0 18rpx; border: 4rpx solid var(--black); border-radius: 16rpx; background: var(--white); font-size: 22rpx; font-weight: 900; }
+.cat-picker { flex: 1; border: 4rpx solid var(--black); border-radius: 16rpx; background: var(--white); display: flex; align-items: center; justify-content: center; }
+.cat-picker-text { font-size: 22rpx; font-weight: 900; }
+
+.palette-row { display: flex; align-items: center; gap: 10rpx; }
+.collage-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12rpx; margin-bottom: 12rpx; }
+.mini-switch { display: flex; border: 3rpx solid var(--black); border-radius: 26rpx; overflow: hidden; background: var(--white); }
+.mini-btn { padding: 8rpx 18rpx; font-size: 18rpx; font-weight: 900; color: #888; }
+.mini-btn.active { background: var(--yellow); color: var(--black); }
+.collage-canvas { width: 100%; height: 560rpx; background: #FFFDF8; border: 4rpx solid var(--black); border-radius: 20rpx; box-shadow: 4rpx 4rpx 0 var(--black); margin-bottom: 12rpx; }
+.collage-hint { font-size: 16rpx; color: #999; font-weight: 700; line-height: 1.5; margin-bottom: 12rpx; }
+.collage-strip { white-space: nowrap; padding-bottom: 12rpx; }
+.collage-chip { display: inline-flex; flex-direction: column; align-items: center; width: 112rpx; padding: 8rpx 6rpx; margin-right: 10rpx; border: 3rpx solid var(--black); border-radius: 16rpx; background: var(--white); box-shadow: 3rpx 3rpx 0 var(--black); }
+.collage-chip-img { width: 70rpx; height: 70rpx; }
+.collage-chip-name { font-size: 14rpx; font-weight: 900; color: #555; max-width: 102rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.collage-actions { display: flex; gap: 16rpx; margin-top: 12rpx; }
+.collage-actions button { flex: 1; }
+
+.lib-tabs-scroll { white-space: nowrap; padding-bottom: 16rpx; }
+.capsule-tab { display: inline-block; white-space: nowrap; margin-right: 10rpx; padding: 10rpx 22rpx; border: 4rpx solid var(--black); border-radius: 32rpx; font-size: 20rpx; font-weight: 900; background: var(--white); }
+.capsule-tab.active { background: var(--yellow); box-shadow: 4rpx 4rpx 0 var(--black); }
+
+.sticker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14rpx; }
+.lib-item { height: 210rpx; border: 4rpx solid var(--black); border-radius: 20rpx; overflow: hidden; background: var(--white); box-shadow: 4rpx 4rpx 0 var(--black); }
+.lib-item:active { transform: translate(3rpx, 3rpx); box-shadow: 1rpx 1rpx 0 var(--black); }
+.sticker-img { width: 100%; height: 100%; }

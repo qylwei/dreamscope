@@ -1,0 +1,71 @@
+<view class="page-wrap">
+  <view class="oval-header">
+    <view class="oval-title">{{t.nav_insights || 'Insights'}}</view>
+  </view>
+
+  <!-- 情绪频谱（按真实记录计算） -->
+  <view class="memphis-card">
+    <view class="card-title">{{t.in_emotion_spectrum || '🔮 本月情绪频谱'}}</view>
+    <block wx:if="{{stats.hasEmotion}}">
+      <view class="emotion-bar">
+        <view class="emotion-slice" style="width:{{stats.emotionPct.anxious}}%; background:var(--emotion);"></view>
+        <view class="emotion-slice" style="width:{{stats.emotionPct.calm}}%; background:var(--location);"></view>
+        <view class="emotion-slice" style="width:{{stats.emotionPct.joy}}%; background:var(--yellow);"></view>
+        <view class="emotion-slice" style="width:{{stats.emotionPct.sad}}%; background:var(--item);"></view>
+      </view>
+      <view class="emotion-legend">
+        <text>{{t.in_anxious || '焦虑'}} {{stats.emotionPct.anxious}}%</text>
+        <text>{{t.in_calm || '平静'}} {{stats.emotionPct.calm}}%</text>
+        <text>{{t.in_joy || '喜悦'}} {{stats.emotionPct.joy}}%</text>
+        <text>{{t.in_sad || '感伤'}} {{stats.emotionPct.sad}}%</text>
+      </view>
+    </block>
+    <view class="emotion-empty" wx:else>{{t.in_empty_emotion || '记录梦境后，这里会自动生成情绪频谱'}}</view>
+  </view>
+
+  <!-- AI 月度总结 -->
+  <view class="memphis-card">
+    <view class="card-title">
+      <text>{{t.in_ai_monthly_title || '🧠 AI 月度总结'}}</text>
+      <text class="link" bindtap="generateSummary">{{summaryLoading ? (t.in_btn_generating || '生成中…') : (t.in_btn_generate || '生成')}}</text>
+    </view>
+    <view class="ai-summary" wx:if="{{aiSummary}}">{{aiSummary}}</view>
+    <view class="ai-summary empty" wx:else>{{t.in_ai_empty_desc || '根据你的梦境记录，让 AI 总结本月的情绪走向和高频意象。'}}</view>
+  </view>
+
+  <!-- 意象出场排行（真实统计） -->
+  <view class="rank-section-title">{{t.in_rank_title || '🏆 意象出场排行 Top5'}}</view>
+
+  <block wx:if="{{stats.topMotifs.length > 0}}">
+    <view class="rank-row" wx:for="{{stats.topMotifs}}" wx:key="name">
+      <text class="rank-emoji">🔹</text>
+      <text class="dream-sticker s-item rank-sticker">{{item.name}}</text>
+      <text class="rank-count">{{item.count}}{{currentLang === 'en' ? 'x' : '次'}}</text>
+    </view>
+  </block>
+  <view class="rank-empty" wx:else>{{t.in_empty_rank || '还没有足够的意象记录'}}</view>
+
+  <!-- 数据概览 -->
+  <view class="memphis-card stats-card">
+    <view class="card-title">{{t.in_monthly_summary_card || '📋 本月总结'}}</view>
+    <view class="stats-grid">
+      <view class="stat-mini">
+        <text class="sn">{{stats.total}}</text>
+        <text class="sl">{{t.in_stat_dreams || '梦境档案'}}</text>
+      </view>
+      <view class="stat-mini">
+        <text class="sn">{{stats.myStickers}}</text>
+        <text class="sl">{{t.in_stat_stickers || '创作贴纸'}}</text>
+      </view>
+      <view class="stat-mini">
+        <text class="sn">{{stats.streak}}</text>
+        <text class="sl">{{t.in_stat_streak || '连续天数'}}</text>
+      </view>
+      <view class="stat-mini">
+        <text class="sn">{{stats.aiCount}}</text>
+        <text class="sl">{{t.in_stat_ai || 'AI 插画'}}</text>
+      </view>
+    </view>
+    <view class="stats-note">{{t.in_stat_note || '统计来自本机梦境记录，实时计算'}}</view>
+  </view>
+</view>

@@ -1,0 +1,61 @@
+.page-wrap { padding: 0 28rpx 40rpx; }
+
+/* 复古波普日历组件 */
+.cal-card { margin-bottom: 20rpx; padding: 18rpx 16rpx 14rpx; background: #FFFFFF; }
+.cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14rpx; }
+.cal-month-nav { display: flex; align-items: center; gap: 8rpx; }
+.cal-arrow { font-size: 22rpx; font-weight: 900; padding: 4rpx 10rpx; background: var(--warm); border: 2rpx solid var(--black); border-radius: 8rpx; }
+.cal-month-title { font-size: 22rpx; font-weight: 900; color: #1A1A1A; margin: 0 4rpx; }
+.cal-actions { display: flex; align-items: center; gap: 8rpx; }
+.cal-btn { font-size: 18rpx; font-weight: 900; padding: 4rpx 12rpx; border: 2rpx solid var(--black); border-radius: 12rpx; background: var(--white); }
+.cal-btn.active { background: var(--yellow); box-shadow: 2rpx 2rpx 0 var(--black); }
+.cal-toggle-link { font-size: 18rpx; font-weight: 900; color: var(--blue); margin-left: 6rpx; }
+
+.cal-week-row { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 18rpx; font-weight: 900; color: #888; margin-bottom: 8rpx; }
+.cal-sun, .cal-sat { color: var(--red); }
+
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6rpx; }
+.cal-day-cell { position: relative; height: 68rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2rpx solid transparent; border-radius: 12rpx; font-size: 20rpx; font-weight: 900; color: #222; }
+.cal-day-cell.cell-empty { pointer-events: none; }
+.cal-day-cell.cell-has-dream { background: #FFFDE7; border-color: #E0E0E0; }
+.cal-day-cell.cell-today { border-color: var(--blue); font-weight: 900; }
+.cal-day-cell.cell-selected { background: var(--yellow) !important; border: 3rpx solid var(--black) !important; box-shadow: 2rpx 2rpx 0 var(--black); transform: translateY(-2rpx); }
+.cal-day-num { font-size: 20rpx; line-height: 1; }
+.cal-dream-dot { margin-top: 4rpx; line-height: 1; }
+.dot-icon { font-size: 16rpx; }
+
+.cal-filter-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 14rpx; padding-top: 10rpx; border-top: 2rpx dashed var(--black); font-size: 18rpx; font-weight: 900; }
+.cal-filter-text { color: var(--blue); }
+.cal-clear-filter { color: var(--red); }
+.cal-empty-reset { margin-top: 20rpx; font-size: 20rpx; }
+
+.hero-illust { position: relative; width: 100%; height: 420rpx; border: var(--bw) solid var(--black); border-radius: var(--rds); overflow: hidden; margin-bottom: 16rpx; background: linear-gradient(180deg, #FFFDF5 0%, #F0EBFF 100%); box-shadow: var(--shadow); }
+.hero-img { width: 100%; height: 100%; }
+.hero-empty { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 32rpx; font-size: 28rpx; font-weight: 900; text-align: center; }
+.badge-ai { position: absolute; top: 12rpx; right: 12rpx; z-index: 5; background: var(--white); border: 3rpx solid var(--black); padding: 4rpx 12rpx; border-radius: 12rpx; font-size: 18rpx; font-weight: 900; }
+
+.hero-summary { font-size: 24rpx; line-height: 1.6; font-weight: 700; margin-bottom: 14rpx; }
+.hero-stickers { display: flex; flex-wrap: wrap; margin-bottom: 4rpx; }
+
+.dream-list { margin-bottom: 20rpx; }
+.timeline-thumb { display: flex; align-items: center; gap: 14rpx; background: var(--white); border: 4rpx solid var(--black); border-radius: 22rpx; padding: 12rpx 16rpx; margin-bottom: 14rpx; box-shadow: 4rpx 4rpx 0 var(--black); }
+.timeline-thumb:active { transform: translate(3rpx, 3rpx); box-shadow: 1rpx 1rpx 0 var(--black); }
+.tl-date { font-size: 18rpx; font-weight: 900; white-space: nowrap; }
+.tl-emoji { font-size: 34rpx; }
+.tl-thumb { width: 76rpx; height: 76rpx; flex-shrink: 0; border: 3rpx solid var(--black); border-radius: 14rpx; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 30rpx; overflow: hidden; }
+.tl-img { width: 100%; height: 100%; }
+.tl-name { flex: 1; min-width: 0; font-size: 18rpx; font-weight: 900; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 删除按钮样式 */
+.tl-del-btn { display: flex; align-items: center; justify-content: center; width: 54rpx; height: 54rpx; border: 2rpx solid var(--black); border-radius: 12rpx; background: #FFF0F0; margin-left: 8rpx; }
+.tl-del-btn:active { background: #FFCDD2; transform: scale(0.92); }
+.del-icon { font-size: 22rpx; }
+
+.empty-state { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 60rpx 20rpx; }
+.empty-moon { font-size: 110rpx; margin-bottom: 16rpx; }
+.empty-title { font-size: 30rpx; font-weight: 900; margin-bottom: 8rpx; }
+.empty-sub { font-size: 20rpx; font-weight: 700; color: var(--text-muted); margin-bottom: 24rpx; line-height: 1.5; }
+
+.bottom-actions { display: flex; gap: 16rpx; margin-top: 16rpx; }
+.bottom-actions .btn-secondary { flex: 1; }
+.bottom-actions .btn-primary { flex: 1.2; }

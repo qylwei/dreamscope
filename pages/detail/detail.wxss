@@ -1,0 +1,31 @@
+.page-wrap { padding: 0 28rpx 40rpx; }
+
+.detail-header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16rpx; font-size: 22rpx; font-weight: 900; }
+.back-btn { padding: 4rpx 0; }
+.detail-date-badge { font-size: 20rpx; font-weight: 900; }
+
+.detail-illust { position: relative; width: 100%; height: 440rpx; border: var(--bw) solid var(--black); border-radius: var(--rds); overflow: hidden; margin-bottom: 16rpx; background: linear-gradient(180deg, #FFFDF5 0%, #EBF5FF 100%); box-shadow: var(--shadow); }
+.illust-img { width: 100%; height: 100%; }
+.illust-empty { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 110rpx; }
+
+.detail-desc { font-size: 24rpx; line-height: 1.6; font-weight: 700; margin-bottom: 20rpx; }
+
+.detail-section-title { display: flex; justify-content: space-between; align-items: baseline; font-size: 22rpx; font-weight: 900; margin-bottom: 12rpx; }
+
+.card-title { font-size: 24rpx; font-weight: 900; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14rpx; }
+.link { font-size: 20rpx; font-weight: 900; color: var(--blue); }
+.ai-reading { font-size: 22rpx; line-height: 1.7; color: #444; font-weight: 600; }
+.ai-reading.empty { color: #AAA; font-weight: 700; }
+
+.mini-graph { display: flex; align-items: center; flex-wrap: wrap; gap: 4rpx; background: var(--white); border: 4rpx solid var(--black); border-radius: 20rpx; padding: 18rpx; margin-bottom: 20rpx; }
+.mini-graph .dream-sticker { margin: 0; }
+.mini-dash { font-size: 22rpx; font-weight: 900; margin: 0 6rpx; }
+
+.detail-drawer { white-space: nowrap; padding-bottom: 12rpx; margin-bottom: 12rpx; }
+.dchip { display: inline-block; padding: 8rpx 18rpx; margin-right: 10rpx; border: 4rpx solid var(--black); border-radius: 28rpx; font-size: 20rpx; font-weight: 900; background: var(--white); box-shadow: 4rpx 4rpx 0 var(--black); }
+
+.detail-actions { display: flex; gap: 16rpx; margin-top: 20rpx; }
+.detail-actions button { flex: 1; }
+
+.detail-danger-action { text-align: center; margin-top: 32rpx; padding: 16rpx 0; }
+.del-dream-link { font-size: 20rpx; font-weight: 900; color: #E53935; text-decoration: underline; padding: 8rpx 16rpx; }

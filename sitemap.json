@@ -1,0 +1,9 @@
+{
+  "desc": "DreamScope",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
+}

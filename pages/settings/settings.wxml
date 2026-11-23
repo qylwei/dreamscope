@@ -1,0 +1,142 @@
+<view class="page-wrap">
+  <view class="oval-header">
+    <view class="oval-title">Settings</view>
+  </view>
+
+  <!-- 语言选择卡片 (双语模式) -->
+  <view class="memphis-card lang-card">
+    <view class="card-title">
+      <text>{{t.st_lang_card_title}}</text>
+      <text class="lang-tag">{{currentLang === 'zh' ? '🇨🇳 中文' : '🇬🇧 English'}}</text>
+    </view>
+    <view class="lang-selector-row">
+      <view class="lang-opt-btn {{currentLang === 'zh' ? 'active' : ''}}" bindtap="changeLang" data-lang="zh">
+        <text class="lang-opt-name">🇨🇳 中文</text>
+        <text class="lang-opt-sub">Chinese</text>
+      </view>
+      <view class="lang-opt-btn {{currentLang === 'en' ? 'active' : ''}}" bindtap="changeLang" data-lang="en">
+        <text class="lang-opt-name">🇬🇧 English</text>
+        <text class="lang-opt-sub">{{t.st_lang_en_sub}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- AI 模型设置 -->
+  <view class="memphis-card">
+    <view class="card-title">
+      <text>{{t.st_ai_card_title}}</text>
+      <text class="link" bindtap="toggleKeyVisible">{{keyVisible ? t.st_hide_key : t.st_show_key}}</text>
+    </view>
+
+    <!-- 生图就绪状态条 -->
+    <view class="ai-banner {{hasImageConfigured ? 'banner-ok' : 'banner-tip'}}">
+      <text class="banner-icon">{{hasImageConfigured ? '🎨' : '💡'}}</text>
+      <view class="banner-content">
+        <text class="banner-title">{{hasImageConfigured ? t.st_status_ready : t.st_status_need}}</text>
+        <text class="banner-desc">{{hasImageConfigured ? t.st_status_ready_sub : t.st_status_need_sub}}</text>
+      </view>
+    </view>
+
+    <!-- 分类一：可生图大模型 -->
+    <view class="provider-group-title">
+      <text>{{t.st_sec_img_models}}</text>
+      <text class="group-tag-rec">{{t.st_badge_rec_all}}</text>
+    </view>
+    <view class="provider-chips">
+      <block wx:for="{{imageProviders}}" wx:key="key">
+        <view class="provider-chip img-chip {{provider === item.key ? 'active' : ''}}" bindtap="pickProvider" data-key="{{item.key}}">
+          <text>{{item.name}}</text>
+          <text wx:if="{{item.recommend}}" class="chip-badge">{{currentLang === 'en' ? 'Rec' : '推荐'}}</text>
+          <text wx:else class="chip-badge">{{currentLang === 'en' ? 'Image' : '生图'}}</text>
+        </view>
+      </block>
+    </view>
+
+    <!-- 分类二：纯文本大模型 -->
+    <view class="provider-group-title text-group-title">
+      <text>{{t.st_sec_text_models}}</text>
+      <text class="group-tag-text">{{t.st_badge_text_only}}</text>
+    </view>
+    <view class="provider-chips">
+      <block wx:for="{{textProviders}}" wx:key="key">
+        <view class="provider-chip {{provider === item.key ? 'active' : ''}}" bindtap="pickProvider" data-key="{{item.key}}">{{item.name}}</view>
+      </block>
+    </view>
+
+    <!-- 当前选中服务商信息 -->
+    <view class="current-provider-box">
+      <view class="cp-header">
+        <text class="cp-name">{{providerName}}</text>
+        <text class="cp-tag {{supportsImage ? 'cp-tag-image' : 'cp-tag-text'}}">{{supportsImage ? (currentLang === 'en' ? '✨ Image Gen' : '✨ 具备生图能力') : (currentLang === 'en' ? '📝 Text Only' : '📝 纯文本模型')}}</text>
+        <text class="cp-copy-link" bindtap="copyPortalUrl">{{t.st_copy_portal}}</text>
+      </view>
+      <view class="cp-desc" wx:if="{{providerDesc}}">{{providerDesc}}</view>
+    </view>
+
+    <input class="ai-key-input" password="{{!keyVisible}}" placeholder="{{currentLang === 'en' ? 'Paste API Key for ' + providerName : '粘贴 ' + providerName + ' 的 API Key'}}" value="{{apiKey}}" bindinput="onKeyInput" />
+    <view class="ai-setting-row">
+      <text class="ai-setting-label">{{t.st_text_model_label}}</text>
+      <input class="ai-model-input" placeholder="glm-4-flash" value="{{aiModel}}" bindinput="onModelInput" />
+    </view>
+    <view class="model-chips">
+      <block wx:for="{{textModels}}" wx:key="*this">
+        <view class="model-chip {{aiModel === item ? 'active' : ''}}" bindtap="pickTextModel" data-model="{{item}}">{{item}}</view>
+      </block>
+    </view>
+
+    <block wx:if="{{supportsImage}}">
+      <view class="ai-setting-row">
+        <text class="ai-setting-label">{{t.st_image_model_label}}</text>
+        <input class="ai-model-input" placeholder="{{imageModels[0]}}" value="{{imageModel}}" bindinput="onImageModelInput" />
+      </view>
+      <view class="model-chips">
+        <block wx:for="{{imageModels}}" wx:key="*this">
+          <view class="model-chip {{imageModel === item ? 'active' : ''}}" bindtap="pickImageModel" data-model="{{item}}">{{item}}</view>
+        </block>
+      </view>
+    </block>
+    <view class="ai-note text-only-note" wx:else>{{t.st_note_text_only}}</view>
+
+    <view class="ai-btn-row">
+      <button class="btn-secondary" bindtap="clearKey">{{t.st_btn_clear}}</button>
+      <button class="btn-primary" bindtap="saveKey">{{t.st_btn_save}}</button>
+    </view>
+    <button class="btn-secondary test-btn" bindtap="testAI" loading="{{testing}}">{{t.st_btn_test}}</button>
+    <view class="ai-status">{{aiStatus}}</view>
+    <view class="asr-status {{asrReady ? 'asr-ok' : ''}}">{{asrStatusText}}</view>
+    <view class="ai-note">{{t.st_note_keys_safe}}</view>
+  </view>
+
+  <!-- 全局统计 -->
+  <view class="memphis-card stats-card">
+    <view class="card-title">{{t.st_stats_title}}</view>
+    <view class="stats-grid">
+      <view class="stat-mini">
+        <text class="sn">{{stats.total}}</text>
+        <text class="sl">{{t.st_stat_dreams}}</text>
+      </view>
+      <view class="stat-mini">
+        <text class="sn">{{stats.myStickers}}</text>
+        <text class="sl">{{t.st_stat_stickers}}</text>
+      </view>
+      <view class="stat-mini">
+        <text class="sn">{{stats.streak}}</text>
+        <text class="sl">{{t.st_stat_streak}}</text>
+      </view>
+      <view class="stat-mini">
+        <text class="sn">{{stats.aiCount}}</text>
+        <text class="sl">{{t.st_stat_ai_gen}}</text>
+      </view>
+    </view>
+    <view class="stats-note">{{t.st_stats_note}}</view>
+  </view>
+
+  <!-- 设置项 -->
+  <view class="memphis-card">
+    <view class="set-row" bindtap="noOp"><text>{{t.st_row_notify}}</text><text class="set-arrow">→</text></view>
+    <view class="set-row" bindtap="noOp"><text>{{t.st_row_theme}}</text><text class="set-arrow">→</text></view>
+    <view class="set-row" bindtap="noOp"><text>{{t.st_row_privacy}}</text><text class="set-arrow">→</text></view>
+    <view class="set-row" bindtap="exportData"><text>{{t.st_row_export}}</text><text class="set-arrow">→</text></view>
+    <view class="set-row" bindtap="showAbout"><text>{{t.st_row_about}}</text><text class="set-arrow">→</text></view>
+  </view>
+</view>

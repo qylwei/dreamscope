@@ -1,0 +1,110 @@
+<view class="page-wrap">
+  <view class="oval-header">
+    <view class="oval-title">{{t.nav_workshop || 'Sticker Lab'}}</view>
+  </view>
+
+  <view class="mode-switch">
+    <view class="mode-btn {{activeTab === 'ai' ? 'active' : ''}}" bindtap="switchTab" data-tab="ai">{{t.ws_tab_ai || '🤖 AI 生成'}}</view>
+    <view class="mode-btn {{activeTab === 'doodle' ? 'active' : ''}}" bindtap="switchTab" data-tab="doodle">{{t.ws_tab_doodle || '✏️ 手绘'}}</view>
+    <view class="mode-btn {{activeTab === 'collage' ? 'active' : ''}}" bindtap="switchTab" data-tab="collage">{{t.ws_tab_collage || '🧩 拼贴'}}</view>
+    <view class="mode-btn {{activeTab === 'db' ? 'active' : ''}}" bindtap="switchTab" data-tab="db">{{t.ws_tab_db || '🎨 贴纸库'}}</view>
+  </view>
+
+  <!-- AI 生成 -->
+  <view wx:if="{{activeTab === 'ai'}}">
+    <input class="ai-prompt-input" placeholder="{{t.ws_ai_placeholder || '一只戴礼帽的猫咪在云朵上飞'}}" value="{{aiPrompt}}" bindinput="onPromptInput" />
+
+    <view class="ai-btn-row">
+      <button class="btn-secondary gen-btn" bindtap="generateAi" loading="{{isGenerating}}">{{t.ws_btn_ai_gen || '🪄 AI 实时生成'}}</button>
+      <button class="btn-secondary upload-btn" bindtap="uploadCustomImage">{{t.ws_btn_upload || '📷 上传图片'}}</button>
+    </view>
+
+    <view class="candidates-grid">
+      <block wx:for="{{aiImages}}" wx:key="*this">
+        <view class="candi-card {{selectedAiImg === item ? 'candi-sel' : ''}}" bindtap="selectAiImg" data-img="{{item}}">
+          <image class="candi-img" src="{{item}}" mode="aspectFill"></image>
+          <view class="candi-badge">✓</view>
+        </view>
+      </block>
+    </view>
+
+    <button class="btn-primary save-work-btn" bindtap="saveAiToLibrary">{{t.ws_btn_save_work || '保存到我的创作'}}</button>
+  </view>
+
+  <!-- 手绘涂鸦 -->
+  <view wx:if="{{activeTab === 'doodle'}}">
+    <canvas type="2d" id="doodleCanvas" class="doodle-canvas" disable-scroll="true" catchtouchstart="touchStart" catchtouchmove="touchMove"></canvas>
+
+    <view class="tool-row">
+      <view class="color-dot {{curColor === '#1A1A1A' ? 'dot-active' : ''}}" style="background:#1A1A1A;" bindtap="setColor" data-color="#1A1A1A"></view>
+      <view class="color-dot {{curColor === '#E85A4F' ? 'dot-active' : ''}}" style="background:#E85A4F;" bindtap="setColor" data-color="#E85A4F"></view>
+      <view class="color-dot {{curColor === '#FFD138' ? 'dot-active' : ''}}" style="background:#FFD138;" bindtap="setColor" data-color="#FFD138"></view>
+      <view class="color-dot {{curColor === '#0066CC' ? 'dot-active' : ''}}" style="background:#0066CC;" bindtap="setColor" data-color="#0066CC"></view>
+      <view class="color-dot {{curColor === '#2ECC71' ? 'dot-active' : ''}}" style="background:#2ECC71;" bindtap="setColor" data-color="#2ECC71"></view>
+      <view class="tool-btn" bindtap="clearCanvas">🧹</view>
+    </view>
+
+    <view class="doodle-form">
+      <input class="doodle-name" placeholder="{{t.ws_doodle_name_placeholder || '贴纸名称'}}" value="{{stickerName}}" bindinput="onStickerNameInput" />
+      <picker class="cat-picker" range="{{catOptions}}" value="{{stickerCatIndex}}" bindchange="onCatChange">
+        <view class="cat-picker-text">{{catOptions[stickerCatIndex]}} ▾</view>
+      </picker>
+    </view>
+
+    <button class="btn-primary doodle-save-btn" bindtap="saveDoodle">{{t.ws_btn_doodle_save || '生成贴纸'}}</button>
+  </view>
+
+  <!-- 拼贴画布 -->
+  <view wx:if="{{activeTab === 'collage'}}">
+    <view class="collage-toolbar">
+      <view class="mini-switch">
+        <view class="mini-btn {{collageMode === 'move' ? 'active' : ''}}" bindtap="setCollageMode" data-mode="move">{{t.rec_mode_move || '🖐 移动'}}</view>
+        <view class="mini-btn {{collageMode === 'draw' ? 'active' : ''}}" bindtap="setCollageMode" data-mode="draw">{{t.rec_mode_draw || '🖌 画笔'}}</view>
+      </view>
+      <view class="palette-row">
+        <view class="color-dot {{collageColor === '#1A1A1A' ? 'dot-active' : ''}}" style="background:#1A1A1A;" bindtap="setCollageColor" data-color="#1A1A1A"></view>
+        <view class="color-dot {{collageColor === '#E85A4F' ? 'dot-active' : ''}}" style="background:#E85A4F;" bindtap="setCollageColor" data-color="#E85A4F"></view>
+        <view class="color-dot {{collageColor === '#FFD138' ? 'dot-active' : ''}}" style="background:#FFD138;" bindtap="setCollageColor" data-color="#FFD138"></view>
+        <view class="color-dot {{collageColor === '#0066CC' ? 'dot-active' : ''}}" style="background:#0066CC;" bindtap="setCollageColor" data-color="#0066CC"></view>
+        <view class="color-dot {{collageColor === '#2ECC71' ? 'dot-active' : ''}}" style="background:#2ECC71;" bindtap="setCollageColor" data-color="#2ECC71"></view>
+      </view>
+    </view>
+
+    <canvas type="2d" id="collageCanvas" class="collage-canvas" disable-scroll="true" catchtouchstart="collageTouchStart" catchtouchmove="collageTouchMove" catchtouchend="collageTouchEnd"></canvas>
+
+    <view class="collage-hint">{{t.ws_collage_tip || '点下面的贴纸放到画布；「移动」拖位置，「画笔」在贴纸上继续画。'}}</view>
+
+    <scroll-view scroll-x class="collage-strip">
+      <block wx:for="{{collageStickers}}" wx:key="key">
+        <view class="collage-chip" bindtap="addStickerToCanvas" data-src="{{item.src}}" data-name="{{item.name}}">
+          <image class="collage-chip-img" src="{{item.src}}" mode="aspectFit"></image>
+          <text class="collage-chip-name">{{currentLang === 'en' ? (item.nameEn || item.name) : item.name}}</text>
+        </view>
+      </block>
+    </scroll-view>
+
+    <view class="collage-actions">
+      <button class="btn-secondary" bindtap="clearCollage">{{t.ws_btn_clear_canvas || '清空画布'}}</button>
+      <button class="btn-primary" bindtap="saveCollage">{{t.ws_btn_save_collage || '💾 保存作品'}}</button>
+    </view>
+  </view>
+
+  <!-- 贴纸库 -->
+  <view wx:if="{{activeTab === 'db'}}">
+    <scroll-view scroll-x class="lib-tabs-scroll">
+      <block wx:for="{{categories}}" wx:key="key">
+        <view class="capsule-tab {{selectedCat === item.key ? 'active' : ''}}" bindtap="selectCategory" data-cat="{{item.key}}">
+          {{item.name}}
+        </view>
+      </block>
+    </scroll-view>
+
+    <view class="sticker-grid">
+      <block wx:for="{{filteredStickers}}" wx:key="id">
+        <view class="lib-item" bindtap="previewSticker" data-item="{{item}}">
+          <image class="sticker-img" src="{{item.src}}" mode="aspectFit"></image>
+        </view>
+      </block>
+    </view>
+  </view>
+</view>

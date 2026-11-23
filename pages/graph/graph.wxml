@@ -1,0 +1,86 @@
+<view class="page-wrap">
+  <view class="oval-header">
+    <view class="oval-title">{{t.nav_graph || 'Dream Graph'}}</view>
+  </view>
+
+  <!-- 顶部状态栏与模式切换 -->
+  <view class="graph-tip-bar">
+    <view class="gt-left">
+      <text class="gt-text">{{currentLang === 'en' ? 'All Motifs (' + nodeCount + ') · Links (' + edgeCount + ')' : '全量意象 (' + nodeCount + ') · 关联 (' + edgeCount + ')'}}</text>
+    </view>
+    <view class="gt-controls">
+      <!-- 视图模式切换 -->
+      <view class="view-mode-tabs">
+        <text class="mode-tab {{viewMode === 'sphere' ? 'active' : ''}}" bindtap="switchViewMode" data-mode="sphere">{{t.gp_mode_sphere || '3D球体'}}</text>
+        <text class="mode-tab {{viewMode === 'obsidian' ? 'active' : ''}}" bindtap="switchViewMode" data-mode="obsidian">{{t.gp_mode_obsidian || 'Obsidian'}}</text>
+      </view>
+      <text class="ctrl-btn" bindtap="toggleAutoRotate">{{autoRotate ? '⏸' : '▶'}}</text>
+      <text class="ctrl-btn" bindtap="resetView">🔄</text>
+    </view>
+  </view>
+
+  <!-- 主图谱画布舞台 -->
+  <view class="memphis-card graph-stage">
+    <canvas type="2d" id="graphCanvas" class="graph-canvas"
+            bindtouchstart="onTouchStart"
+            bindtouchmove="onTouchMove"
+            bindtouchend="onTouchEnd"></canvas>
+            
+    <view class="graph-empty" wx:if="{{!hasGraph}}">{{t.gp_empty || '先记录一场梦，意象图谱会自动生成'}}</view>
+
+    <!-- 浮动分类图例 -->
+    <view class="graph-legend">
+      <view class="legend-item"><text class="legend-dot" style="background:#FF5252;"></text>{{currentLang === 'en' ? 'Action' : '动作'}}</view>
+      <view class="legend-item"><text class="legend-dot" style="background:#FFB300;"></text>{{currentLang === 'en' ? 'Item' : '物品'}}</view>
+      <view class="legend-item"><text class="legend-dot" style="background:#00E676;"></text>{{currentLang === 'en' ? 'Location' : '地点'}}</view>
+      <view class="legend-item"><text class="legend-dot" style="background:#7C4DFF;"></text>{{currentLang === 'en' ? 'Emotion' : '情绪'}}</view>
+    </view>
+
+    <!-- 交互提示浮标 -->
+    <view class="stage-watermark">
+      <text wx:if="{{viewMode === 'sphere'}}">{{t.gp_tip_sphere || '🌐 手指滑动可 360° 滚动球体 · 点击意象聚焦网络'}}</text>
+      <text wx:else>{{t.gp_tip_obsidian || '🕸️ Obsidian 点状力导向关联图 · 拖拽平移探索'}}</text>
+    </view>
+  </view>
+
+  <!-- 选中意象的详细分析卡片 (点击节点弹出) -->
+  <view class="memphis-card node-detail-card" wx:if="{{selectedNode}}">
+    <view class="nd-header">
+      <view class="nd-title-row">
+        <text class="nd-name">{{selectedNode.displayName || selectedNode.name}}</text>
+        <text class="nd-cat-badge s-{{selectedNode.cat}}">{{selectedNode.catLabel || selectedNode.cat}}</text>
+      </view>
+      <text class="nd-close" bindtap="clearSelection">{{t.gp_detail_close || '✕ 取消聚焦'}}</text>
+    </view>
+    
+    <view class="nd-stats-row">
+      <text class="nd-stat">{{t.gp_stat_occ || '🔥 出现'}} {{selectedNode.count}} {{currentLang === 'en' ? 'times' : '次'}}</text>
+      <text class="nd-stat">{{t.gp_stat_deg || '🔗 关联度'}} {{selectedNode.degree}} {{currentLang === 'en' ? 'links' : '条'}}</text>
+    </view>
+
+    <!-- 共现意象 -->
+    <view class="nd-section-title" wx:if="{{relatedNeighbors.length > 0}}">{{t.gp_sec_neighbors || '常伴意象：'}}</view>
+    <view class="nd-neighbors-row" wx:if="{{relatedNeighbors.length > 0}}">
+      <block wx:for="{{relatedNeighbors}}" wx:key="name">
+        <view class="nd-neighbor-chip" bindtap="selectNodeByName" data-name="{{item.name}}">
+          <text>{{item.displayName || item.name}}</text>
+          <text class="neighbor-weight">×{{item.weight}}</text>
+        </view>
+      </block>
+    </view>
+
+    <!-- 出现的梦境档案 -->
+    <view class="nd-section-title">{{t.gp_sec_dreams || '相关梦境档案 (点击查阅)：'}}</view>
+    <view class="nd-dreams-list">
+      <block wx:for="{{relatedDreams}}" wx:key="id">
+        <view class="nd-dream-item" bindtap="navToDreamDetail" data-id="{{item.id}}">
+          <text class="nd-dream-date">{{currentLang === 'en' && item.dateEn ? item.dateEn : item.date}}</text>
+          <text class="nd-dream-title">{{currentLang === 'en' && item.titleEn ? item.titleEn : item.title}}</text>
+          <text class="nd-dream-arrow">→</text>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view class="graph-hint" wx:else>{{t.gp_hint_default || '💡 所有意象已全量呈现在上方图谱中；轻点任意节点即可高亮其关联网络与梦境溯源'}}</view>
+</view>

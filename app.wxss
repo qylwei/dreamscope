@@ -1,0 +1,135 @@
+/** 复古波普 / 孟菲斯：黑描边 + 实心偏移阴影 **/
+page {
+  --black: #1A1A1A;
+  --yellow: #FFD138;
+  --blue: #0066CC;
+  --red: #E85A4F;
+  --bg: #F7F4EE;
+  --white: #FFFFFF;
+  --warm: #FAFAFC;
+  --action: #C9AD9D;
+  --item: #D4A69F;
+  --location: #94AFCC;
+  --emotion: #B795A6;
+  --text-main: #222222;
+  --text-muted: #888888;
+  --bw: 4rpx;
+  --rds: 28rpx;
+  --shadow: 8rpx 8rpx 0 var(--black);
+
+  background-color: var(--bg);
+  background-image: radial-gradient(rgba(26, 26, 26, 0.13) 2rpx, transparent 2rpx);
+  background-size: 26rpx 26rpx;
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  box-sizing: border-box;
+  font-size: 26rpx;
+  padding-bottom: 40rpx;
+}
+
+view, text, button, input, textarea, picker { box-sizing: border-box; }
+
+/* 顶部椭圆标题 */
+.oval-header {
+  display: flex;
+  justify-content: center;
+  margin: 24rpx 0 20rpx;
+}
+.oval-title {
+  background: var(--white);
+  color: var(--black);
+  font-size: 34rpx;
+  font-weight: 900;
+  padding: 12rpx 46rpx;
+  border: var(--bw) solid var(--black);
+  border-radius: 50% / 50%;
+  box-shadow: 6rpx 6rpx 0 var(--black);
+}
+
+/* 孟菲斯白卡片 */
+.memphis-card {
+  background: var(--white);
+  border: var(--bw) solid var(--black);
+  border-radius: var(--rds);
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 贴纸徽章 */
+.dream-sticker {
+  display: inline-flex;
+  align-items: center;
+  font-size: 20rpx;
+  font-weight: 900;
+  padding: 8rpx 18rpx;
+  border-radius: 32rpx;
+  border: 4rpx solid var(--black);
+  box-shadow: 4rpx 4rpx 0 var(--black);
+  margin-right: 10rpx;
+  margin-bottom: 10rpx;
+  color: var(--black);
+  background: var(--white);
+}
+.s-action { background: rgba(201, 173, 157, 0.45); }
+.s-item { background: rgba(212, 166, 159, 0.45); }
+.s-location { background: rgba(148, 175, 204, 0.45); }
+.s-emotion { background: rgba(183, 149, 166, 0.45); }
+
+.stickers-wrap { display: flex; flex-wrap: wrap; }
+.st-img { width: 30rpx; height: 30rpx; margin-right: 8rpx; flex-shrink: 0; }
+
+/* 按钮 */
+.btn-primary, .btn-secondary {
+  margin: 0;
+  line-height: 1.2;
+  font-weight: 900;
+  border: var(--bw) solid var(--black);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-primary::after, .btn-secondary::after { border: none; }
+
+.btn-primary {
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 26rpx;
+  padding: 18rpx 36rpx;
+  border-radius: 44rpx;
+  box-shadow: 6rpx 6rpx 0 var(--black);
+}
+.btn-primary:active {
+  transform: translate(4rpx, 4rpx);
+  box-shadow: 2rpx 2rpx 0 var(--black);
+}
+
+.btn-secondary {
+  background: var(--white);
+  color: var(--black);
+  font-size: 22rpx;
+  padding: 12rpx 26rpx;
+  border-radius: 36rpx;
+  box-shadow: 4rpx 4rpx 0 var(--black);
+}
+.btn-secondary:active {
+  transform: translate(3rpx, 3rpx);
+  box-shadow: 1rpx 1rpx 0 var(--black);
+}
+
+/* 卡片内小标题 */
+.section-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 26rpx;
+  font-weight: 900;
+  margin-bottom: 16rpx;
+}
+.section-extra {
+  font-size: 18rpx;
+  font-weight: 900;
+  color: var(--text-muted);
+}

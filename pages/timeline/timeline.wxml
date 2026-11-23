@@ -1,0 +1,114 @@
+<view class="page-wrap">
+  <view class="oval-header">
+    <view class="oval-title">DreamScope</view>
+  </view>
+
+  <!-- 复古波普梦境日历 -->
+  <view class="memphis-card cal-card">
+    <view class="cal-header">
+      <view class="cal-month-nav">
+        <text class="cal-arrow" bindtap="prevMonth">◀</text>
+        <text class="cal-month-title">{{currentLang === 'en' ? (calMonth === 1 ? 'Jan' : calMonth === 2 ? 'Feb' : calMonth === 3 ? 'Mar' : calMonth === 4 ? 'Apr' : calMonth === 5 ? 'May' : calMonth === 6 ? 'Jun' : calMonth === 7 ? 'Jul' : calMonth === 8 ? 'Aug' : calMonth === 9 ? 'Sep' : calMonth === 10 ? 'Oct' : calMonth === 11 ? 'Nov' : 'Dec') + ' ' + calYear : calYear + '年 ' + calMonth + '月'}}</text>
+        <text class="cal-arrow" bindtap="nextMonth">▶</text>
+      </view>
+      <view class="cal-actions">
+        <text class="cal-btn {{selectedDateKey ? '' : 'active'}}" bindtap="selectAllDates">{{t.tl_calendar_all}}</text>
+        <text class="cal-btn" bindtap="goToToday">{{t.tl_calendar_today}}</text>
+        <text class="cal-toggle-link" bindtap="toggleCalendar">{{calendarExpanded ? t.tl_calendar_collapse : t.tl_calendar_expand}}</text>
+      </view>
+    </view>
+
+    <block wx:if="{{calendarExpanded}}">
+      <!-- 星期表头 -->
+      <view class="cal-week-row">
+        <text class="cal-week-cell cal-sun">{{t.tl_weeks[0]}}</text>
+        <text class="cal-week-cell">{{t.tl_weeks[1]}}</text>
+        <text class="cal-week-cell">{{t.tl_weeks[2]}}</text>
+        <text class="cal-week-cell">{{t.tl_weeks[3]}}</text>
+        <text class="cal-week-cell">{{t.tl_weeks[4]}}</text>
+        <text class="cal-week-cell">{{t.tl_weeks[5]}}</text>
+        <text class="cal-week-cell cal-sat">{{t.tl_weeks[6]}}</text>
+      </view>
+
+      <!-- 日期网格 -->
+      <view class="cal-grid">
+        <block wx:for="{{calendarDays}}" wx:key="index">
+          <view class="cal-day-cell {{item.empty ? 'cell-empty' : ''}} {{item.isSelected ? 'cell-selected' : ''}} {{item.isToday ? 'cell-today' : ''}} {{item.hasDream ? 'cell-has-dream' : ''}}"
+                bindtap="onDayClick" data-item="{{item}}">
+            <text class="cal-day-num" wx:if="{{!item.empty}}">{{item.dayNum}}</text>
+            <view class="cal-dream-dot" wx:if="{{item.hasDream}}">
+              <text class="dot-icon">🌙</text>
+            </view>
+          </view>
+        </block>
+      </view>
+    </block>
+
+    <!-- 筛选提示条 -->
+    <view class="cal-filter-bar" wx:if="{{selectedDateKey}}">
+      <text class="cal-filter-text">{{t.tl_filtered_prefix}}「{{selectedDateLabel}}」({{filteredDreams.length}} {{t.tl_total_suffix}})</text>
+      <text class="cal-clear-filter" bindtap="selectAllDates">{{t.tl_clear_filter}}</text>
+    </view>
+  </view>
+
+  <block wx:if="{{filteredDreams.length > 0}}">
+    <view class="hero-illust" bindtap="navToDetail" data-id="{{featuredDream.id}}">
+      <text class="badge-ai" wx:if="{{featuredDream.isAiGenerated}}">{{t.tl_badge_ai}}</text>
+      <image wx:if="{{featuredDream.image}}" class="hero-img" src="{{featuredDream.image}}" mode="aspectFill"></image>
+      <view wx:else class="hero-empty">{{featuredDream.emoji}} {{currentLang === 'en' && featuredDream.titleEn ? featuredDream.titleEn : featuredDream.title}}</view>
+    </view>
+
+    <view class="hero-summary">“{{currentLang === 'en' && featuredDream.descEn ? featuredDream.descEn : featuredDream.desc}}”</view>
+    <view class="hero-stickers">
+      <block wx:for="{{featuredDream.stickers}}" wx:key="name">
+        <view class="dream-sticker s-{{item.cat}}">
+          <image wx:if="{{item.src}}" class="st-img" src="{{item.src}}" mode="aspectFit"></image>
+          <text>{{currentLang === 'en' ? (item.nameEn || item.name) : (item.name || item.nameEn)}}</text>
+        </view>
+      </block>
+      <block wx:if="{{(!featuredDream.stickers || featuredDream.stickers.length === 0) && featuredDream.tags}}">
+        <block wx:for="{{featuredDream.tags}}" wx:key="*this">
+          <view class="dream-sticker s-item">
+            <text>{{currentLang === 'en' ? (featuredDream.tagsEn && featuredDream.tagsEn[index] ? featuredDream.tagsEn[index] : item) : item}}</text>
+          </view>
+        </block>
+      </block>
+    </view>
+
+    <view class="section-label">
+      <text>{{t.tl_archive_title}} · {{selectedDateLabel}}</text>
+      <text class="section-extra">{{t.tl_total_prefix}} {{filteredDreams.length}} {{t.tl_total_suffix}}</text>
+    </view>
+
+    <view class="dream-list">
+      <block wx:for="{{filteredDreams}}" wx:key="id">
+        <view class="timeline-thumb" bindtap="navToDetail" data-id="{{item.id}}">
+          <text class="tl-date">{{currentLang === 'en' && item.dateEn ? item.dateEn : item.date}}</text>
+          <text class="tl-emoji">{{item.emoji}}</text>
+          <view class="tl-thumb">
+            <image wx:if="{{item.image}}" class="tl-img" src="{{item.image}}" mode="aspectFill"></image>
+            <text wx:else>{{item.emoji}}</text>
+          </view>
+          <text class="tl-name">{{currentLang === 'en' ? (item.titleEn || item.title) : (item.title || item.titleEn)}}</text>
+          
+          <!-- 删除过往记录按钮 -->
+          <view class="tl-del-btn" catchtap="deleteDream" data-id="{{item.id}}">
+            <text class="del-icon">🗑️</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </block>
+
+  <view class="empty-state" wx:else>
+    <text class="empty-moon">🌙</text>
+    <text class="empty-title">{{selectedDateKey ? selectedDateLabel + ' ' + t.tl_empty_date_title : t.tl_empty_global_title}}</text>
+    <text class="empty-sub">{{selectedDateKey ? t.tl_empty_date_sub : t.tl_empty_global_sub}}</text>
+    <button class="btn-secondary cal-empty-reset" wx:if="{{selectedDateKey}}" bindtap="selectAllDates">{{t.tl_view_all_dreams}}</button>
+  </view>
+
+  <view class="bottom-actions">
+    <button class="btn-secondary" bindtap="navToRecord">{{t.tl_btn_record}}</button>
+    <button class="btn-primary" bindtap="navToWorkshop">{{t.tl_btn_workshop}}</button>
+  </view>
+</view>

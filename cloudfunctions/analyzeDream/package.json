@@ -1,0 +1,7 @@
+{
+  "name": "analyzeDream",
+  "version": "1.0.0",
+  "description": "梦境文本结构化分析",
+  "main": "index.js",
+  "dependencies": {}
+}

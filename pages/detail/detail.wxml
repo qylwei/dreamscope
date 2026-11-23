@@ -1,0 +1,63 @@
+<view class="page-wrap">
+  <view class="oval-header">
+    <view class="oval-title">{{t.nav_detail || 'Dream Detail'}}</view>
+  </view>
+
+  <view class="detail-header-bar">
+    <text class="back-btn" bindtap="goBack">{{t.dt_back || '← 返回'}}</text>
+    <text class="detail-date-badge">{{currentLang === 'en' && dream.dateEn ? dream.dateEn : dream.date}} {{dream.emoji}}</text>
+  </view>
+
+  <view class="detail-illust">
+    <image wx:if="{{dream.image}}" class="illust-img" src="{{dream.image}}" mode="aspectFill"></image>
+    <text wx:else class="illust-empty">{{dream.emoji}}</text>
+  </view>
+
+  <view class="detail-desc">{{currentLang === 'en' && dream.descEn ? dream.descEn : dream.desc}}</view>
+
+  <view class="detail-section-title">{{t.dt_stickers_title || '🏷️ 贴纸意象'}}</view>
+  <view class="stickers-wrap">
+    <block wx:for="{{dream.stickers}}" wx:key="name">
+      <view class="dream-sticker s-{{item.cat}}">
+        <image wx:if="{{item.src}}" class="st-img" src="{{item.src}}" mode="aspectFit"></image>
+        <text>{{currentLang === 'en' && item.nameEn ? item.nameEn : item.name}}</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="detail-section-title">
+    <text>{{t.dt_mini_graph_title || '🔗 微型关联图谱'}}</text>
+    <text class="link" bindtap="openGraph">{{t.dt_open_graph || '进入大图谱 ›'}}</text>
+  </view>
+  <view class="mini-graph">
+    <block wx:for="{{miniStickers}}" wx:key="name">
+      <text class="mini-dash" wx:if="{{index > 0}}">—</text>
+      <text class="dream-sticker s-{{item.cat}}" bindtap="openGraph" data-name="{{item.name}}">{{currentLang === 'en' && item.nameEn ? item.nameEn : item.name}}</text>
+    </block>
+  </view>
+
+  <view class="detail-section-title">{{t.dt_related_tags || '📎 关联意象'}}</view>
+  <scroll-view scroll-x class="detail-drawer">
+    <block wx:for="{{dream.tags}}" wx:key="*this">
+      <view class="dchip">{{currentLang === 'en' ? (dream.tagsEn && dream.tagsEn[index] ? dream.tagsEn[index] : item) : item}}</view>
+    </block>
+  </scroll-view>
+
+  <view class="memphis-card">
+    <view class="card-title">
+      <text>{{t.dt_ai_interp_title || '🧠 AI 梦境解读'}}</text>
+      <text class="link" bindtap="generateReading">{{readingLoading ? (t.dt_btn_interp_loading || '解读中…') : (t.dt_btn_interp || '开始解读')}}</text>
+    </view>
+    <view class="ai-reading" wx:if="{{aiReading}}">{{aiReading}}</view>
+    <view class="ai-reading empty" wx:else>{{t.dt_interp_empty || '点击「开始解读」，让 AI 从意象和情绪角度聊一聊这个梦。'}}</view>
+  </view>
+
+  <view class="detail-actions">
+    <button class="btn-secondary" bindtap="playAudio">{{t.dt_btn_play_audio || '🎧 播放原声'}}</button>
+    <button class="btn-primary" bindtap="saveArchive">{{t.dt_btn_archive || '保存归档'}}</button>
+  </view>
+
+  <view class="detail-danger-action">
+    <text class="del-dream-link" bindtap="deleteCurrentDream">{{t.dt_del_dream || '🗑️ 删除此篇梦境档案'}}</text>
+  </view>
+</view>

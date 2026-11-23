@@ -1,0 +1,51 @@
+.page-wrap { padding: 0 28rpx 40rpx; }
+
+/* 顶部控制栏 */
+.graph-tip-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14rpx; }
+.gt-left { flex: 1; }
+.gt-text { font-size: 19rpx; font-weight: 900; color: #333; }
+.gt-controls { display: flex; align-items: center; gap: 8rpx; }
+
+.view-mode-tabs { display: flex; border: 2rpx solid var(--black); border-radius: 12rpx; overflow: hidden; }
+.mode-tab { font-size: 17rpx; font-weight: 900; padding: 4rpx 12rpx; background: var(--white); }
+.mode-tab.active { background: var(--yellow); }
+
+.ctrl-btn { font-size: 20rpx; font-weight: 900; padding: 4rpx 10rpx; border: 2rpx solid var(--black); border-radius: 10rpx; background: var(--white); }
+.ctrl-btn:active { background: var(--warm); }
+
+/* 主画布舞台 */
+.graph-stage { height: 740rpx; padding: 0; position: relative; background: #FFFDF9; overflow: hidden; box-shadow: 4rpx 4rpx 0 var(--black); border: 4rpx solid var(--black); border-radius: 24rpx; }
+.graph-canvas { width: 100%; height: 100%; display: block; }
+.graph-empty { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; font-size: 22rpx; font-weight: 900; color: #AAA; text-align: center; width: 70%; }
+
+/* 图例 */
+.graph-legend { position: absolute; top: 12rpx; left: 14rpx; z-index: 10; display: flex; gap: 12rpx; background: rgba(255, 255, 255, 0.88); border: 2rpx solid var(--black); border-radius: 12rpx; padding: 4rpx 10rpx; }
+.legend-item { display: flex; align-items: center; font-size: 16rpx; font-weight: 900; color: #555; }
+.legend-dot { width: 14rpx; height: 14rpx; border-radius: 50%; border: 1.5rpx solid #1A1A1A; margin-right: 4rpx; }
+
+/* 水印提示 */
+.stage-watermark { position: absolute; bottom: 10rpx; left: 0; width: 100%; text-align: center; font-size: 16rpx; font-weight: 900; color: #9E9E9E; pointer-events: none; }
+
+/* 选中节点详情卡片 */
+.node-detail-card { margin-top: 18rpx; padding: 18rpx; background: var(--white); border: 4rpx solid var(--black); border-radius: 20rpx; box-shadow: 4rpx 4rpx 0 var(--black); }
+.nd-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8rpx; }
+.nd-title-row { display: flex; align-items: center; gap: 10rpx; }
+.nd-name { font-size: 26rpx; font-weight: 900; color: #1A1A1A; }
+.nd-cat-badge { font-size: 16rpx; padding: 2rpx 10rpx; border-radius: 10rpx; border: 2rpx solid var(--black); font-weight: 900; }
+.nd-close { font-size: 18rpx; font-weight: 900; color: var(--red); }
+
+.nd-stats-row { display: flex; gap: 20rpx; font-size: 18rpx; font-weight: 900; color: #666; margin-bottom: 12rpx; }
+.nd-stat { background: var(--warm); padding: 4rpx 12rpx; border-radius: 8rpx; }
+
+.nd-section-title { font-size: 18rpx; font-weight: 900; color: #444; margin: 8rpx 0 6rpx; }
+.nd-neighbors-row { display: flex; flex-wrap: wrap; gap: 8rpx; margin-bottom: 12rpx; }
+.nd-neighbor-chip { display: flex; align-items: center; gap: 4rpx; font-size: 18rpx; font-weight: 900; padding: 4rpx 12rpx; border: 2rpx solid var(--black); border-radius: 14rpx; background: #FFF9C4; }
+.neighbor-weight { font-size: 15rpx; color: #F57F17; }
+
+.nd-dreams-list { display: flex; flex-direction: column; gap: 8rpx; }
+.nd-dream-item { display: flex; align-items: center; justify-content: space-between; padding: 10rpx 14rpx; background: var(--warm); border: 2rpx solid var(--black); border-radius: 12rpx; }
+.nd-dream-date { font-size: 17rpx; font-weight: 900; color: #666; width: 120rpx; }
+.nd-dream-title { flex: 1; font-size: 18rpx; font-weight: 900; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0 10rpx; }
+.nd-dream-arrow { font-size: 20rpx; color: #888; font-weight: 900; }
+
+.graph-hint { margin-top: 14rpx; font-size: 18rpx; font-weight: 700; color: #999; text-align: center; }

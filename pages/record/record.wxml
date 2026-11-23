@@ -1,0 +1,136 @@
+<view class="page-wrap">
+  <view class="oval-header">
+    <view class="oval-title">{{t.rec_title}}</view>
+  </view>
+  <view class="sub-tip">{{t.rec_sub_tip}}</view>
+
+  <view class="rec-btn-big {{isRecording ? 'rec-active' : ''}}" bindtap="toggleRecord">
+    <text class="rec-icon">{{isRecording ? '⏹️' : '🎤'}}</text>
+  </view>
+
+  <view class="wave-row" wx:if="{{isRecording}}">
+    <view class="wave-bar" style="animation-delay:0s"></view>
+    <view class="wave-bar" style="animation-delay:0.12s"></view>
+    <view class="wave-bar" style="animation-delay:0.24s"></view>
+    <view class="wave-bar" style="animation-delay:0.08s"></view>
+    <view class="wave-bar" style="animation-delay:0.2s"></view>
+    <view class="wave-bar" style="animation-delay:0.04s"></view>
+    <view class="wave-bar" style="animation-delay:0.16s"></view>
+    <view class="wave-bar" style="animation-delay:0.28s"></view>
+    <view class="wave-bar" style="animation-delay:0.1s"></view>
+    <view class="wave-bar" style="animation-delay:0.22s"></view>
+  </view>
+
+  <view class="trans-card">
+    <textarea class="trans-textarea" placeholder="{{t.rec_textarea_placeholder}}" value="{{dreamText}}" bindinput="onTextInput" maxlength="800" disabled="{{isRecording || isTranscribing}}"></textarea>
+    <view class="trans-status" wx:if="{{aiDetectedStatus}}">{{aiDetectedStatus}}</view>
+    <view class="trans-status muted" wx:elif="{{recordTimerText !== '00:00'}}">⏱️ {{currentLang === 'en' ? 'Recorded' : '已录制'}} {{recordTimerText}}</view>
+    <view class="trans-status muted" wx:if="{{!asrReady}}">{{t.rec_asr_off}}</view>
+    <button class="btn-secondary retry-trans-btn" wx:if="{{canRetryTranscription && tempAudioPath && asrReady}}" bindtap="retryTranscription">{{currentLang === 'en' ? 'Retry transcription' : '重试语音转写'}}</button>
+
+    <!-- AI 实时生成梦境画面入口 -->
+    <view class="ai-create-action-row">
+      <button class="btn-primary gen-preview-btn" bindtap="generateAiDreamImage" loading="{{isGeneratingAiImage}}">
+        🪄 {{aiImagePreview ? t.rec_btn_regen_ai : t.rec_btn_gen_ai}}
+      </button>
+    </view>
+  </view>
+
+  <view class="audio-playback-bar" wx:if="{{!isRecording && tempAudioPath}}" bindtap="togglePlayAudio">
+    <view class="audio-play-icon">{{isPlayingAudio ? '⏸️' : '▶️'}}</view>
+    <view class="audio-info">
+      <text class="audio-name">{{t.rec_audio_name}}</text>
+      <text class="audio-len">{{recordDurationSec}}s · {{isPlayingAudio ? t.rec_playing : t.rec_click_play}}</text>
+    </view>
+    <text class="audio-tip">🎧</text>
+  </view>
+
+  <!-- 梦境绘卷创作工作台 (AI图片生成后出现，自由绘画 + 粘贴贴纸) -->
+  <view class="memphis-card studio-card" wx:if="{{showCanvasStudio}}">
+    <view class="card-title">
+      <text>{{t.rec_studio_title}}</text>
+      <text class="link" bindtap="clearStudioDoodle">{{t.rec_restore_bg}}</text>
+    </view>
+
+    <!-- 画布工具栏 -->
+    <view class="studio-toolbar">
+      <view class="mini-switch">
+        <view class="mini-btn {{collageMode === 'move' ? 'active' : ''}}" bindtap="setStudioMode" data-mode="move">{{t.rec_mode_move}}</view>
+        <view class="mini-btn {{collageMode === 'draw' ? 'active' : ''}}" bindtap="setStudioMode" data-mode="draw">{{t.rec_mode_draw}}</view>
+      </view>
+      <view class="palette-row" wx:if="{{collageMode === 'draw'}}">
+        <view class="color-dot {{collageColor === '#1A1A1A' ? 'dot-active' : ''}}" style="background:#1A1A1A;" bindtap="setStudioColor" data-color="#1A1A1A"></view>
+        <view class="color-dot {{collageColor === '#E85A4F' ? 'dot-active' : ''}}" style="background:#E85A4F;" bindtap="setStudioColor" data-color="#E85A4F"></view>
+        <view class="color-dot {{collageColor === '#FFD138' ? 'dot-active' : ''}}" style="background:#FFD138;" bindtap="setStudioColor" data-color="#FFD138"></view>
+        <view class="color-dot {{collageColor === '#0066CC' ? 'dot-active' : ''}}" style="background:#0066CC;" bindtap="setStudioColor" data-color="#0066CC"></view>
+        <view class="color-dot {{collageColor === '#2ECC71' ? 'dot-active' : ''}}" style="background:#2ECC71;" bindtap="setStudioColor" data-color="#2ECC71"></view>
+      </view>
+    </view>
+
+    <!-- 互动合成画板 -->
+    <view class="canvas-wrap">
+      <canvas type="2d" id="dreamStudioCanvas" class="studio-canvas" disable-scroll="true"
+              catchtouchstart="canvasTouchStart"
+              catchtouchmove="canvasTouchMove"
+              catchtouchend="canvasTouchEnd"></canvas>
+      <view class="studio-canvas-tip">{{t.rec_studio_tip}}</view>
+    </view>
+
+    <!-- 自由粘贴的贴纸托盘 -->
+    <view class="studio-strip-title">{{t.rec_strip_title}}</view>
+    <scroll-view scroll-x class="studio-strip">
+      <block wx:for="{{stickerLib}}" wx:key="key">
+        <view class="studio-chip" bindtap="addStickerToDreamCanvas" data-src="{{item.src}}" data-name="{{item.name}}">
+          <image class="studio-chip-img" src="{{item.src}}" mode="aspectFit"></image>
+          <text class="studio-chip-name">{{currentLang === 'en' ? (item.nameEn || item.name) : item.name}}</text>
+        </view>
+      </block>
+    </scroll-view>
+
+    <!-- 现场生成专属新贴纸并加入画面 -->
+    <view class="gen-mini-box">
+      <view class="gen-row">
+        <input class="gen-input" placeholder="{{t.rec_gen_mini_placeholder}}" value="{{genPrompt}}" bindinput="onGenPromptInput" />
+        <button class="btn-secondary gen-mini-btn" bindtap="generateSticker" loading="{{genLoading}}">{{t.rec_btn_make_sticker}}</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 意象贴纸归档（未开启画布时提供基础选择） -->
+  <view class="memphis-card" wx:if="{{!showCanvasStudio}}">
+    <view class="card-title">
+      <text>{{t.rec_sticker_card_title}}</text>
+      <text class="link" bindtap="toggleLib">{{libVisible ? t.rec_sticker_close_lib : t.rec_sticker_open_lib}}</text>
+    </view>
+
+    <view class="picked-wrap" wx:if="{{pickedStickers.length > 0}}">
+      <view class="picked-item" wx:for="{{pickedStickers}}" wx:key="key">
+        <image wx:if="{{item.src}}" class="picked-img" src="{{item.src}}" mode="aspectFit"></image>
+        <text class="picked-name">{{currentLang === 'en' ? (item.nameEn || item.name) : item.name}}</text>
+        <text class="picked-del" bindtap="removePicked" data-index="{{index}}">×</text>
+      </view>
+    </view>
+    <view class="picked-empty" wx:else>{{t.rec_empty_stickers_tip}}</view>
+
+    <view class="lib-panel" wx:if="{{libVisible}}">
+      <scroll-view scroll-x class="lib-tabs">
+        <block wx:for="{{libCats}}" wx:key="key">
+          <view class="lib-tab {{libCat === item.key ? 'active' : ''}}" bindtap="selectLibCat" data-cat="{{item.key}}">{{item.name}}</view>
+        </block>
+      </scroll-view>
+      <view class="lib-grid">
+        <block wx:for="{{libList}}" wx:key="key">
+          <view class="lib-cell {{item.picked ? 'picked' : ''}}" bindtap="toggleSticker" data-key="{{item.key}}">
+            <image class="lib-img" src="{{item.src}}" mode="aspectFit"></image>
+            <text class="lib-name">{{currentLang === 'en' ? (item.nameEn || item.name) : item.name}}</text>
+          </view>
+        </block>
+      </view>
+    </view>
+  </view>
+
+  <view class="rec-actions">
+    <button class="btn-secondary cancel-btn" bindtap="cancelRecord">{{t.rec_cancel}}</button>
+    <button class="btn-primary analyze-btn" bindtap="saveDream">{{t.rec_save_timeline}}</button>
+  </view>
+</view>
