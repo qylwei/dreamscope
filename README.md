@@ -13,27 +13,6 @@ AI 梦境记录与意象分析小程序：语音说梦 → 自动转写 → 结�
 - **意象图谱**：梦境意象按共现关系连成图谱（球体 / 平面两种布局），情绪频谱与 Top 5 意象一目了然。
 - **中英双语**：界面支持中英文切换。
 
-
-## 生成效果
-
-应用内 AI 生成的梦境插画示例：
-
-<p>
-<img src="assets/ai/ai_deep_sea.png" width="32%" alt="梦境插画：深海">
-<img src="assets/ai/ai_rainbow_slide.png" width="32%" alt="梦境插画：彩虹滑梯">
-<img src="assets/ai/1.png" width="32%" alt="梦境插画：云端猫咪">
-</p>
-
-贴纸实验室的部分贴纸素材：
-
-<p>
-<img src="assets/stickers/sticker_cat.png" width="64" alt="贴纸：猫">
-<img src="assets/stickers/sticker_ufo.png" width="64" alt="贴纸：UFO">
-<img src="assets/stickers/sticker_clock.png" width="64" alt="贴纸：时钟">
-<img src="assets/stickers/sticker_key.png" width="64" alt="贴纸：钥匙">
-<img src="assets/stickers/sticker_floating_man.png" width="64" alt="贴纸：漂浮的人">
-</p>
-
 ## 技术栈
 
 微信小程序原生开发（JavaScript）· 多服务商模型适配（`utils/ai.js`）· FastAPI 代理后端（Python 3.11，`backend/`）· 语音转写（智谱 GLM-ASR）· 本机存储（Storage + 文件持久化，无云同步）
