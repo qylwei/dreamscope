@@ -1,5 +1,7 @@
 const STORAGE_KEY = "dreamscope_ai_config";
 const CATS = ["action", "item", "location", "emotion"];
+const DEFAULT_BACKEND_URL = "http://127.0.0.1:8000";
+const PROXY_CHAT_PROVIDERS = ["zhipu", "deepseek", "qwen", "moonshot"];
 const i18n = require("./i18n");
 
 function currentLang() {
@@ -109,6 +111,8 @@ const PROVIDERS = {
 
 const DEFAULT_CONFIG = {
   provider: "zhipu",
+  mode: "direct",
+  backendUrl: DEFAULT_BACKEND_URL,
   keys: {
     zhipu: "",
     deepseek: "",
@@ -172,6 +176,10 @@ function getConfig() {
   const cfg = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
 
   if (saved.provider && PROVIDERS[saved.provider]) cfg.provider = saved.provider;
+  if (saved.mode === "proxy" || saved.mode === "direct") cfg.mode = saved.mode;
+  if (typeof saved.backendUrl === "string" && saved.backendUrl.trim()) {
+    cfg.backendUrl = saved.backendUrl.trim();
+  }
   if (saved.keys) {
     Object.keys(saved.keys).forEach((k) => {
       if (cfg.keys[k] !== undefined) cfg.keys[k] = saved.keys[k];
@@ -202,6 +210,8 @@ function saveConfig(patch) {
   if (patch && patch.models) next.models = Object.assign({}, cfg.models, patch.models);
   if (patch && patch.imageModels) next.imageModels = Object.assign({}, cfg.imageModels, patch.imageModels);
   if (!PROVIDERS[next.provider]) next.provider = "zhipu";
+  next.mode = next.mode === "proxy" ? "proxy" : "direct";
+  next.backendUrl = String(next.backendUrl || "").trim() || DEFAULT_BACKEND_URL;
   wx.setStorageSync(STORAGE_KEY, next);
   return next;
 }
@@ -226,13 +236,31 @@ function currentProvider() {
   return { cfg: cfg, provider: PROVIDERS[cfg.provider] || PROVIDERS.zhipu };
 }
 
+function isProxyMode(cfg) {
+  return !!(cfg && cfg.mode === "proxy");
+}
+
+function isProxySupported(providerKey) {
+  return PROXY_CHAT_PROVIDERS.indexOf(providerKey) >= 0;
+}
+
+function getProxyBaseUrl(cfg) {
+  return String((cfg && cfg.backendUrl) || DEFAULT_BACKEND_URL).trim().replace(/\/+$/, "");
+}
+
 function hasKey() {
   const info = currentProvider();
+  if (isProxyMode(info.cfg)) {
+    return !!getProxyBaseUrl(info.cfg) && isProxySupported(info.cfg.provider);
+  }
   return !!(info.cfg.keys[info.cfg.provider] || "").trim();
 }
 
 function hasImageKey() {
   const cfg = getConfig();
+  if (isProxyMode(cfg)) {
+    return !!getProxyBaseUrl(cfg);
+  }
   // 当前主选模型若支持生图且有 Key
   if (PROVIDERS[cfg.provider] && PROVIDERS[cfg.provider].supportsImage && (cfg.keys[cfg.provider] || "").trim()) {
     return true;
@@ -243,6 +271,9 @@ function hasImageKey() {
 
 function getActiveImageProvider() {
   const cfg = getConfig();
+  if (isProxyMode(cfg)) {
+    return { key: "zhipu", provider: PROVIDERS.zhipu, cfg: cfg };
+  }
   if (PROVIDERS[cfg.provider] && PROVIDERS[cfg.provider].supportsImage && (cfg.keys[cfg.provider] || "").trim()) {
     return { key: cfg.provider, provider: PROVIDERS[cfg.provider], cfg: cfg };
   }
@@ -278,6 +309,33 @@ function request(url, data, timeout, key) {
         }
         const msg = (res.data && res.data.error && res.data.error.message) || ("HTTP " + res.statusCode);
         reject(new Error(msg));
+      },
+      fail(err) {
+        reject(new Error(formatFail(err)));
+      }
+    });
+  });
+}
+
+function proxyRequest(url, data, timeout) {
+  return new Promise((resolve, reject) => {
+    wx.request({
+      url: url,
+      method: "POST",
+      timeout: timeout || 30000,
+      header: {
+        "Content-Type": "application/json"
+      },
+      data: data,
+      success(res) {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve(res.data);
+          return;
+        }
+        const msg = (res.data && res.data.error && res.data.error.message)
+          || (res.data && res.data.detail)
+          || ("HTTP " + res.statusCode);
+        reject(new Error(typeof msg === "string" ? msg : JSON.stringify(msg)));
       },
       fail(err) {
         reject(new Error(formatFail(err)));
@@ -384,11 +442,31 @@ function chat(messages, options) {
   const info = currentProvider();
   const cfg = info.cfg;
   const provider = info.provider;
-  const key = cfg.keys[cfg.provider];
-  if (!key) return Promise.reject(new Error(L("请先填写 " + provider.name + " 的 API Key", "Add your " + provider.name + " API key first.")));
-
   const model = cfg.models[cfg.provider] || provider.models[0];
   const opts = options || {};
+
+  if (isProxyMode(cfg)) {
+    const baseUrl = getProxyBaseUrl(cfg);
+    if (!baseUrl) {
+      return Promise.reject(new Error(L("请先填写后端代理地址", "Add your backend proxy URL first.")));
+    }
+    if (!isProxySupported(cfg.provider)) {
+      return Promise.reject(new Error(L(
+        "后端代理暂不支持 " + provider.name + "，请切换智谱 GLM / DeepSeek / 通义千问 / Kimi",
+        "Backend proxy does not support " + provider.name + ". Switch to Zhipu / DeepSeek / Qwen / Kimi."
+      )));
+    }
+    return proxyRequest(baseUrl + "/api/chat", {
+      provider: cfg.provider,
+      model: model,
+      temperature: typeof opts.temperature === "number" ? opts.temperature : 0.7,
+      max_tokens: opts.max_tokens || 800,
+      messages: messages
+    }, 30000).then(pickContent);
+  }
+
+  const key = cfg.keys[cfg.provider];
+  if (!key) return Promise.reject(new Error(L("请先填写 " + provider.name + " 的 API Key", "Add your " + provider.name + " API key first.")));
 
   if (provider.api === "anthropic") {
     const system = messages.filter((m) => m.role === "system").map((m) => m.content).join("\n");
@@ -431,6 +509,26 @@ function writeBase64Image(base64) {
 function generateImage(prompt, size) {
   const active = getActiveImageProvider();
   const provider = active.provider;
+
+  if (isProxyMode(active.cfg)) {
+    const baseUrl = getProxyBaseUrl(active.cfg);
+    if (!baseUrl) {
+      return Promise.reject(new Error(L("请先填写后端代理地址", "Add your backend proxy URL first.")));
+    }
+    const proxyModel = active.cfg.imageModels.zhipu || PROVIDERS.zhipu.imageModels[0];
+    return proxyRequest(baseUrl + "/api/image", {
+      model: proxyModel,
+      prompt: String(prompt).slice(0, 300),
+      size: size || "1024x1024"
+    }, 60000).then((res) => {
+      const item = res && res.data && res.data[0];
+      if (!item) throw new Error(L("模型没有返回图片", "The model returned no image."));
+      if (item.url) return item.url;
+      if (item.b64_json) return writeBase64Image(item.b64_json);
+      throw new Error(L("模型没有返回图片", "The model returned no image."));
+    });
+  }
+
   const key = (active.cfg.keys[active.key] || "").trim();
 
   if (!key) {
@@ -658,6 +756,7 @@ module.exports = {
   hasKey,
   hasImageKey,
   getActiveImageProvider,
+  isProxySupported,
   chat,
   analyzeDream,
   interpretDream,

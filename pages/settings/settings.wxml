@@ -25,7 +25,7 @@
   <view class="memphis-card">
     <view class="card-title">
       <text>{{t.st_ai_card_title}}</text>
-      <text class="link" bindtap="toggleKeyVisible">{{keyVisible ? t.st_hide_key : t.st_show_key}}</text>
+      <text class="link" wx:if="{{mode === 'direct'}}" bindtap="toggleKeyVisible">{{keyVisible ? t.st_hide_key : t.st_show_key}}</text>
     </view>
 
     <!-- 生图就绪状态条 -->
@@ -35,6 +35,22 @@
         <text class="banner-title">{{hasImageConfigured ? t.st_status_ready : t.st_status_need}}</text>
         <text class="banner-desc">{{hasImageConfigured ? t.st_status_ready_sub : t.st_status_need_sub}}</text>
       </view>
+    </view>
+
+    <!-- 调用模式（直连 / 后端代理） -->
+    <view class="mode-section">
+      <view class="ai-setting-row">
+        <text class="ai-setting-label">{{currentLang === 'en' ? 'Call Mode' : '调用模式'}}</text>
+        <view class="mode-chips">
+          <view class="provider-chip {{mode === 'direct' ? 'active' : ''}}" bindtap="pickMode" data-mode="direct">{{currentLang === 'en' ? 'Direct' : '直连'}}</view>
+          <view class="provider-chip {{mode === 'proxy' ? 'active' : ''}}" bindtap="pickMode" data-mode="proxy">{{currentLang === 'en' ? 'Backend Proxy' : '后端代理'}}</view>
+        </view>
+      </view>
+      <view class="ai-setting-row" wx:if="{{mode === 'proxy'}}">
+        <text class="ai-setting-label">{{currentLang === 'en' ? 'Backend URL' : '后端地址'}}</text>
+        <input class="ai-model-input" placeholder="http://127.0.0.1:8000" value="{{backendUrl}}" bindinput="onBackendUrlInput" />
+      </view>
+      <view class="ai-note proxy-note" wx:if="{{mode === 'proxy'}}">{{currentLang === 'en' ? 'Proxy mode keeps API keys in backend env vars (supports Zhipu GLM / DeepSeek / Qwen / Kimi chat & Zhipu CogView image).' : '代理模式下 API Key 保存在服务端环境变量，支持智谱 GLM / DeepSeek / 通义千问 / Kimi 对话与智谱 CogView 生图。'}}</view>
     </view>
 
     <!-- 分类一：可生图大模型 -->
@@ -73,7 +89,7 @@
       <view class="cp-desc" wx:if="{{providerDesc}}">{{providerDesc}}</view>
     </view>
 
-    <input class="ai-key-input" password="{{!keyVisible}}" placeholder="{{currentLang === 'en' ? 'Paste API Key for ' + providerName : '粘贴 ' + providerName + ' 的 API Key'}}" value="{{apiKey}}" bindinput="onKeyInput" />
+    <input class="ai-key-input" wx:if="{{mode === 'direct'}}" password="{{!keyVisible}}" placeholder="{{currentLang === 'en' ? 'Paste API Key for ' + providerName : '粘贴 ' + providerName + ' 的 API Key'}}" value="{{apiKey}}" bindinput="onKeyInput" />
     <view class="ai-setting-row">
       <text class="ai-setting-label">{{t.st_text_model_label}}</text>
       <input class="ai-model-input" placeholder="glm-4-flash" value="{{aiModel}}" bindinput="onModelInput" />
@@ -98,7 +114,7 @@
     <view class="ai-note text-only-note" wx:else>{{t.st_note_text_only}}</view>
 
     <view class="ai-btn-row">
-      <button class="btn-secondary" bindtap="clearKey">{{t.st_btn_clear}}</button>
+      <button class="btn-secondary" wx:if="{{mode === 'direct'}}" bindtap="clearKey">{{t.st_btn_clear}}</button>
       <button class="btn-primary" bindtap="saveKey">{{t.st_btn_save}}</button>
     </view>
     <button class="btn-secondary test-btn" bindtap="testAI" loading="{{testing}}">{{t.st_btn_test}}</button>

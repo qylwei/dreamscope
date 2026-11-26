@@ -14,6 +14,23 @@ function asrText(ready, isEn) {
     : "🎙️ 语音转文字需配置智谱 Key（单段 30 秒内）";
 }
 
+function buildAiStatus(mode, providerKey, providerName, supportsImage, hasDirectKey, isEn) {
+  if (mode === "proxy") {
+    if (ai.isProxySupported(providerKey)) {
+      return providerName + (isEn ? " · Backend proxy mode, ready to test" : " · 后端代理模式，可测试连接");
+    }
+    return providerName + (isEn
+      ? " · Not supported in proxy mode (use Zhipu / DeepSeek / Qwen / Kimi)"
+      : " · 后端代理暂不支持该服务商（请选智谱 / DeepSeek / 通义千问 / Kimi）");
+  }
+  if (hasDirectKey) {
+    return providerName
+      + (isEn ? " · Key saved, ready to test" : " · 已保存 Key，可测试连接")
+      + (supportsImage ? (isEn ? " (Image Gen Ready)" : " (支持AI绘图)") : "");
+  }
+  return providerName + (isEn ? " · Key not configured, fallback enabled" : " · 未填写 Key，AI 功能会退回本地规则");
+}
+
 Page({
   data: {
     currentLang: "zh",
@@ -25,6 +42,8 @@ Page({
     providerName: "智谱 GLM",
     providerDesc: "",
     providerPortal: "",
+    mode: "direct",
+    backendUrl: "http://127.0.0.1:8000",
     apiKey: "",
     aiModel: "",
     imageModel: "",
@@ -62,6 +81,8 @@ Page({
       providerName: provider.name,
       providerDesc: provider.desc || "",
       providerPortal: provider.portalUrl || "",
+      mode: cfg.mode || "direct",
+      backendUrl: cfg.backendUrl || "http://127.0.0.1:8000",
       apiKey: cfg.keys[provider.key] || "",
       aiModel: cfg.models[provider.key] || provider.models[0],
       imageModel: provider.supportsImage
@@ -73,9 +94,14 @@ Page({
       hasImageConfigured: hasImageKey,
       asrReady: asr.hasKey(),
       asrStatusText: asrText(asr.hasKey(), info.lang === "en"),
-      aiStatus: cfg.keys[provider.key]
-        ? provider.name + (info.lang === "en" ? " · Key saved, ready to test" : " · 已保存 Key，可测试连接") + (provider.supportsImage ? (info.lang === "en" ? " (Image Gen Ready)" : " (支持AI绘图)") : "")
-        : provider.name + (info.lang === "en" ? " · Key not configured, fallback enabled" : " · 未填写 Key，AI 功能会退回本地规则")
+      aiStatus: buildAiStatus(
+        cfg.mode || "direct",
+        provider.key,
+        provider.name,
+        provider.supportsImage,
+        !!cfg.keys[provider.key],
+        info.lang === "en"
+      )
     });
   },
 
@@ -92,6 +118,34 @@ Page({
 
   onKeyInput(e) {
     this.setData({ apiKey: e.detail.value });
+  },
+
+  onBackendUrlInput(e) {
+    this.setData({ backendUrl: e.detail.value });
+  },
+
+  pickMode(e) {
+    const nextMode = e.currentTarget.dataset.mode === "proxy" ? "proxy" : "direct";
+    if (nextMode === this.data.mode) return;
+    this.persistCurrent();
+    const saved = ai.saveConfig({
+      mode: nextMode,
+      backendUrl: this.data.backendUrl.trim() || "http://127.0.0.1:8000"
+    });
+    const isEn = this.data.currentLang === "en";
+    this.setData({
+      mode: saved.mode,
+      backendUrl: saved.backendUrl,
+      hasImageConfigured: ai.hasImageKey(),
+      aiStatus: buildAiStatus(
+        saved.mode,
+        this.data.provider,
+        this.data.providerName,
+        this.data.supportsImage,
+        !!saved.keys[this.data.provider],
+        isEn
+      )
+    });
   },
 
   onModelInput(e) {
@@ -143,15 +197,22 @@ Page({
       asrReady: asr.hasKey(),
       asrStatusText: asrText(asr.hasKey(), isEn),
       keyVisible: false,
-      aiStatus: cfg.keys[key]
-        ? target.name + (isEn ? " · Key saved, ready to test" : " · 已保存 Key，可测试连接") + (target.supportsImage ? (isEn ? " (Image Gen Ready)" : " (支持AI绘图)") : "")
-        : target.name + (isEn ? " · Key not configured, fallback enabled" : " · 未填写 Key，AI 功能会退回本地规则")
+      aiStatus: buildAiStatus(
+        cfg.mode || "direct",
+        key,
+        target.name,
+        target.supportsImage,
+        !!cfg.keys[key],
+        isEn
+      )
     });
   },
 
   persistCurrent() {
     const provider = this.data.provider;
     const patch = {
+      mode: this.data.mode === "proxy" ? "proxy" : "direct",
+      backendUrl: this.data.backendUrl.trim() || "http://127.0.0.1:8000",
       keys: {},
       models: {}
     };
@@ -166,17 +227,25 @@ Page({
 
   saveKey() {
     this.persistCurrent();
+    const cfg = ai.getConfig();
     const has = !!this.data.apiKey.trim();
     const isEn = this.data.currentLang === "en";
+    const isProxy = cfg.mode === "proxy";
     this.setData({
+      backendUrl: cfg.backendUrl,
       hasImageConfigured: ai.hasImageKey(),
       asrReady: asr.hasKey(),
       asrStatusText: asrText(asr.hasKey(), isEn),
-      aiStatus: has
-        ? this.data.providerName + (isEn ? " · Key saved, ready to test" : " · 已保存 Key，可测试连接") + (this.data.supportsImage ? (isEn ? " (Image Gen Ready)" : " (支持AI绘图)") : "")
-        : this.data.providerName + (isEn ? " · Key cleared, fallback enabled" : " · 已清空 Key，AI 功能会退回本地规则")
+      aiStatus: isProxy
+        ? buildAiStatus(cfg.mode, this.data.provider, this.data.providerName, this.data.supportsImage, has, isEn)
+        : (has
+          ? buildAiStatus("direct", this.data.provider, this.data.providerName, this.data.supportsImage, true, isEn)
+          : this.data.providerName + (isEn ? " · Key cleared, fallback enabled" : " · 已清空 Key，AI 功能会退回本地规则"))
     });
-    wx.showToast({ title: has ? (isEn ? "Saved" : "已保存") : (isEn ? "Cleared" : "已清空"), icon: "none" });
+    wx.showToast({
+      title: (isProxy || has) ? (isEn ? "Saved" : "已保存") : (isEn ? "Cleared" : "已清空"),
+      icon: "none"
+    });
   },
 
   clearKey() {
@@ -197,7 +266,19 @@ Page({
   testAI() {
     if (this.data.testing) return;
     const isEn = this.data.currentLang === "en";
-    if (!this.data.apiKey.trim()) {
+    if (this.data.mode === "proxy") {
+      if (!this.data.backendUrl.trim()) {
+        wx.showToast({ title: isEn ? "Please enter backend URL first" : "请先填写后端地址", icon: "none" });
+        return;
+      }
+      if (!ai.isProxySupported(this.data.provider)) {
+        wx.showToast({
+          title: isEn ? "Proxy supports Zhipu / DeepSeek / Qwen / Kimi" : "代理暂支持智谱 / DeepSeek / 通义 / Kimi",
+          icon: "none"
+        });
+        return;
+      }
+    } else if (!this.data.apiKey.trim()) {
       wx.showToast({ title: isEn ? "Please enter API Key first" : "请先填写 API Key", icon: "none" });
       return;
     }

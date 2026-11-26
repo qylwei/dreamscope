@@ -28,6 +28,9 @@
 .group-tag-text { font-size: 16rpx; color: #888; font-weight: 700; }
 
 .provider-chips { display: flex; flex-wrap: wrap; gap: 8rpx; margin-bottom: 14rpx; }
+.mode-section { margin-bottom: 16rpx; padding: 12rpx 14rpx; background: var(--warm); border: 3rpx solid var(--black); border-radius: 16rpx; }
+.mode-chips { display: flex; flex-wrap: wrap; gap: 8rpx; flex: 1; }
+.proxy-note { margin-top: 4rpx; color: #555; }
 .provider-chip { display: flex; align-items: center; gap: 6rpx; padding: 8rpx 16rpx; border: 3rpx solid var(--black); border-radius: 24rpx; font-size: 18rpx; font-weight: 900; background: var(--white); }
 .provider-chip.active { background: var(--yellow); box-shadow: 3rpx 3rpx 0 var(--black); }
 .img-chip { border-color: #1A1A1A; }
